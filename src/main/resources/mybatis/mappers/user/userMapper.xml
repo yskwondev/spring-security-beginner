@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.practice.securitybeginner.mapper.UserMapper">
+
+  <resultMap id="targetUserMap" type="applicationUser">
+    <result column="email" property="email"/>
+    <result column="password" property="password"/>
+    <result column="user_name" property="userName"/>
+    <result column="is_locked" property="accountLocked"/>
+    <result column="is_enabled" property="accountEnabled"/>
+    <result column="last_login_dt" property="lastLoginDate"/>
+    <result column="create_dt" property="createDate"/>
+    <collection property="roles" ofType="com.practice.securitybeginner.enums.Role">
+      <result column="role_name" property="name"/>
+    </collection>
+  </resultMap>
+
+  <select id="selectUserById" parameterType="String" resultMap="targetUserMap">
+    SELECT U.user_id AS email,
+           U.password,
+           U.user_name,
+           R.role_name,
+           U.is_locked,
+           U.is_enabled,
+           U.last_login_dt,
+           U.create_dt
+    FROM trial.TB_USER AS U
+    JOIN trial.TB_USER_ROLE AS UR
+    ON U.user_id = UR.user_id
+    JOIN trial.TB_ROLE AS R
+    ON UR.role_id = R.role_id
+    WHERE U.user_id = #{userId}
+  </select>
+
+</mapper>
