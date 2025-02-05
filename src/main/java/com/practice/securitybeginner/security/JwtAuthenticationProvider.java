@@ -40,7 +40,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     UserDetails user = userDetailsService.loadUserByUsername(userId);
 
     if (passwordEncoder.matches(password, user.getPassword())) {
-      return new UsernamePasswordAuthenticationToken(userId, password, user.getAuthorities());
+      return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     } else {
       throw new BadCredentialsException("Bad Credentials");
     }
