@@ -8,5 +8,10 @@ import java.util.Optional;
 
 public interface UserService {
 
-  Optional<ApplicationUser> selectUserById(String userId);
+  Optional<ApplicationUser> findUserById(String userId);
+
+  void createUser(ApplicationUser user);
+
+  void createUserRoles(ApplicationUser user);
+
 }

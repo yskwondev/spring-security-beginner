@@ -15,7 +15,17 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   @Override
-  public Optional<ApplicationUser> selectUserById(String userId) {
-    return userMapper.selectUserById(userId);
+  public Optional<ApplicationUser> findUserById(String userId) {
+    return userMapper.findUserById(userId);
+  }
+
+  @Override
+  public void createUser(ApplicationUser user) {
+    userMapper.createUser(user);
+  }
+
+  @Override
+  public void createUserRoles(ApplicationUser user) {
+    userMapper.createUserRoles(user);
   }
 }

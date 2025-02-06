@@ -1,57 +1,70 @@
 package com.practice.securitybeginner.security;
 
-import com.practice.securitybeginner.domain.ApplicationUser;
-import com.practice.securitybeginner.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
+  private final JwtTokenUtil jwtTokenUtil;
   private final UserDetailsService userDetailsService;
   private final PasswordEncoder passwordEncoder;
-  private final Logger logger = LoggerFactory.getLogger(JwtAuthenticationProvider.class);
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    UsernamePasswordAuthenticationToken authToken = (UsernamePasswordAuthenticationToken) authentication;
-    String userId = authToken.getName();
-    String password = authToken.getCredentials().toString();
+    JwtAuthenticationToken authToken = (JwtAuthenticationToken) authentication;
 
-    logger.debug("[ USER ID ] :: {}", userId);
-    logger.debug("[ PASSWORD ] :: {}", password);
-    logger.debug("[ ENCODE PASSWORD ] :: {}", passwordEncoder.encode(password));
-
-    UserDetails user = userDetailsService.loadUserByUsername(userId);
-
-    if (passwordEncoder.matches(password, user.getPassword())) {
-      return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-    } else {
-      throw new BadCredentialsException("Bad Credentials");
+    // username/password 로그인
+    if (authToken.getPrincipal() != null) {
+        return authenticateLogin(authToken);
     }
 
+    // api 호출(JWT 토큰 검증)
+    return authenticateToken(authToken);
+  }
+
+  private Authentication authenticateLogin(JwtAuthenticationToken authToken) {
+      String username = (String) authToken.getPrincipal();
+      String password = (String) authToken.getCredentials();
+
+      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+      if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+          throw new BadCredentialsException("Invalid password");
+      }
+
+      return new JwtAuthenticationToken(username, userDetails.getAuthorities());
+  }
+
+  private Authentication authenticateToken(JwtAuthenticationToken authToken) {
+      String token = (String) authToken.getCredentials();
+
+      if (!jwtTokenUtil.validateToken(token)) {
+          throw new BadCredentialsException("Invalid JWT token");
+      }
+
+      String username = jwtTokenUtil.extractClaim(token, Claims::getSubject);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+      return new JwtAuthenticationToken(username, userDetails.getAuthorities());
   }
 
   // 이 provider가 특정 인증객체를 처리할 수 있는지 여부를 리턴함
   // 구현체가 인증객체를 무엇을 보내냐에 따라 여러개의 인증을 시도할 수 있도록 함.
   @Override
   public boolean supports(Class<?> authentication) {
-    return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+    return JwtAuthenticationToken.class.isAssignableFrom(authentication);
   }
 
 }

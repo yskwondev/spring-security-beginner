@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -28,13 +30,22 @@ public class JwtTokenUtil {
   private final UserDetailsService userDetailsService;
   private final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-  private SecretKey getSigningKey() {
-    byte[] keyBytes = Base64.getEncoder().encodeToString(properties.getSecretKey().getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
-    return Keys.hmacShaKeyFor(keyBytes);
+  public String generateToken(Authentication authentication) {
+    long currentTime = System.currentTimeMillis();
+    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    return Jwts.builder()
+      .subject(userDetails.getUsername())
+      .issuedAt(new Date(currentTime))
+      .expiration(new Date(currentTime + properties.getExpiredTime().toMillis()))
+      .signWith(getSigningKey())
+      .compact();
   }
 
-  public Claims extractAllClaims(String token) {
-    return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
+  // 인증완료
+  public Authentication getAuthentication(String token) {
+    final String userId = extractClaim(token, Claims::getSubject);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+    return new JwtAuthenticationToken(userDetails.getUsername(), userDetails.getAuthorities());
   }
 
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -42,25 +53,23 @@ public class JwtTokenUtil {
     return claimsResolver.apply(claims);
   }
 
-  public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String userId = extractClaim(token, Claims::getSubject);
-    return userId.equals(userDetails.getUsername()) && !isTokenExpired(token);
+  private SecretKey getSigningKey() {
+    byte[] keyBytes = Base64.getEncoder().encodeToString(properties.getSecretKey().getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
+    return Keys.hmacShaKeyFor(keyBytes);
+  }
+
+  // todo 사용자명이랑 토큰에 들어있는 사용자명이랑 비교 안해도 되나?
+  public boolean validateToken(String token) {
+//    final String userId = extractClaim(token, Claims::getSubject);
+    return !isTokenExpired(token);
+  }
+
+  public Claims extractAllClaims(String token) {
+    return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
   }
 
   public boolean isTokenExpired(String token) {
     return extractClaim(token, Claims::getExpiration).before(new Date());
-  }
-
-  public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims) {
-    long currentTime = System.currentTimeMillis();
-    return Jwts.builder()
-      .subject(userDetails.getUsername())
-      .issuedAt(new Date(currentTime))
-      .expiration(new Date(currentTime + properties.getExpiredTime().toMillis()))
-      .claim("authorities", userDetails.getAuthorities())
-      .claims(extraClaims)
-      .signWith(getSigningKey())
-      .compact();
   }
 
 }
