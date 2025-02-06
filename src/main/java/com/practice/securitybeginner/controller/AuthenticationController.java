@@ -40,7 +40,7 @@ public class AuthenticationController {
       .email(authenticationRequest.getEmail())
       .userName(authenticationRequest.getUserName())
       .password(passwordEncoder.encode(authenticationRequest.getPassword()))
-      .roles(Set.of(Role.USER))
+      .roles(Set.of(Role.USER, Role.ADMIN))
       .build();
 
     userService.createUser(user);

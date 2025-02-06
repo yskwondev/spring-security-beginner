@@ -49,10 +49,10 @@
 
   <insert id="createUserRoles" parameterType="applicationUser">
       INSERT INTO TB_USER_ROLE
-      <foreach collection="applicationUser.roles" item="role" separator=" UNION ALL ">
+      <foreach collection="roles" item="role" separator=" UNION ALL ">
           SELECT
-              #{applicationUser.email} as USER_ID,
-              (SELECT ROLE_ID FROM TB_ROLE WHERE ROLE_NAME = #{role})
+              CAST(#{email} AS VARCHAR) as USER_ID,
+              (SELECT ROLE_ID FROM TB_ROLE WHERE ROLE_NAME = CAST(#{role} AS VARCHAR))
           FROM DUAL
       </foreach>
   </insert>
