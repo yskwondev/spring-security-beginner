@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:log4jdbc:h2:tcp://localhost/~/spring-security
+    username: admin
+    password: admin
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+
+mybatis:
+  mapper-locations: mybatis/mappers/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.practice.securitybeginner.domain
+
+token:
+  secret-key: 404YT9815597821S^#*^DFEW$#FJE90B452594334891#SDJ!!@FC^
+  expired-time: 1h
