@@ -12,5 +12,5 @@ mybatis:
   type-aliases-package: com.practice.securitybeginner.domain
 
 token:
-  secret-key: 404YT9815597821S^#*^DFEW$#FJE90B452594334891#SDJ!!@FC^
+  secret-key: Jzz4p/T4MtBbFsk/d1RyilDTxmElYnPQdlP1YWNrEDo=
   expired-time: 1h

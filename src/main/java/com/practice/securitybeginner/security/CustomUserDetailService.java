@@ -1,5 +1,7 @@
 package com.practice.securitybeginner.security;
 
+import com.practice.securitybeginner.domain.ApplicationUser;
+import com.practice.securitybeginner.security.domain.CustomUserDetails;
 import com.practice.securitybeginner.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +17,8 @@ public class CustomUserDetailService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-    return userService.findUserById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    ApplicationUser applicationUser = userService.findUserById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    return new CustomUserDetails(applicationUser);
   }
 
 }

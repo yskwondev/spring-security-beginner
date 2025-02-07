@@ -5,12 +5,12 @@
 <mapper namespace="com.practice.securitybeginner.mapper.UserMapper">
 
   <resultMap id="targetUserMap" type="applicationUser">
-    <result column="email" property="email"/>
+    <result column="user_id" property="userId"/>
     <result column="password" property="password"/>
     <result column="user_name" property="userName"/>
     <result column="is_locked" property="accountLocked"/>
     <result column="is_enabled" property="accountEnabled"/>
-    <result column="last_login_dt" property="lastLoginDate"/>
+    <result column="last_login_dt" property="lastLoginDateTime"/>
     <result column="create_dt" property="createDate"/>
     <collection property="roles" ofType="com.practice.securitybeginner.enums.Role">
       <result column="role_name" property="name"/>
@@ -18,7 +18,7 @@
   </resultMap>
 
   <select id="findUserById" parameterType="String" resultMap="targetUserMap">
-    SELECT U.user_id AS email,
+    SELECT U.user_id,
            U.password,
            U.user_name,
            R.role_name,
@@ -37,7 +37,7 @@
   <insert id="createUser" parameterType="applicationUser">
     INSERT INTO TB_USER
     VALUES (
-      #{email},
+      #{userId},
       #{password},
       #{userName},
       false,

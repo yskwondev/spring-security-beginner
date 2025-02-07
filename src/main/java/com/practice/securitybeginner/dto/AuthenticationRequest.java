@@ -11,8 +11,8 @@ import java.util.Set;
 @Setter
 @ToString
 public class AuthenticationRequest {
-  private String email;
-  private String password;
   private String userName;
+  private String userId;
+  private String password;
   private Set<Role> roles;
 }

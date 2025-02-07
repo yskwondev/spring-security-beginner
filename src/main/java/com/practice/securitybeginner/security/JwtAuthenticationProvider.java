@@ -1,5 +1,9 @@
 package com.practice.securitybeginner.security;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.practice.securitybeginner.domain.ApplicationUser;
+import com.practice.securitybeginner.security.domain.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,52 +16,39 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-  private final JwtTokenUtil jwtTokenUtil;
   private final UserDetailsService userDetailsService;
   private final PasswordEncoder passwordEncoder;
+  private final ObjectMapper objectMapper;
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     JwtAuthenticationToken authToken = (JwtAuthenticationToken) authentication;
-
-    // username/password 로그인
-    if (authToken.getPrincipal() != null) {
-        return authenticateLogin(authToken);
-    }
-
-    // api 호출(JWT 토큰 검증)
-    return authenticateToken(authToken);
+    return authenticateLogin(authToken);
   }
 
   private Authentication authenticateLogin(JwtAuthenticationToken authToken) {
-      String username = (String) authToken.getPrincipal();
-      String password = (String) authToken.getCredentials();
+    String username = (String) authToken.getPrincipal();
+    String password = (String) authToken.getCredentials();
 
-      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
 
-      if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-          throw new BadCredentialsException("Invalid password");
-      }
+    if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+      throw new BadCredentialsException("Invalid password");
+    }
 
-      return new JwtAuthenticationToken(username, userDetails.getAuthorities());
-  }
+    if (!userDetails.isEnabled()) { throw new BadCredentialsException("User is disabled"); }
+    if (!userDetails.isAccountNonLocked()) { throw new BadCredentialsException("User is locked"); }
 
-  private Authentication authenticateToken(JwtAuthenticationToken authToken) {
-      String token = (String) authToken.getCredentials();
-
-      if (!jwtTokenUtil.validateToken(token)) {
-          throw new BadCredentialsException("Invalid JWT token");
-      }
-
-      String username = jwtTokenUtil.extractClaim(token, Claims::getSubject);
-      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-      return new JwtAuthenticationToken(username, userDetails.getAuthorities());
+    Map<String, Object> convertedUserDetails = objectMapper.convertValue(userDetails.getUser(), new TypeReference<>() {});
+    return new JwtAuthenticationToken(username, convertedUserDetails, userDetails.getAuthorities());
   }
 
   // 이 provider가 특정 인증객체를 처리할 수 있는지 여부를 리턴함

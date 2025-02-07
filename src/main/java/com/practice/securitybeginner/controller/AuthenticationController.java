@@ -32,12 +32,12 @@ public class AuthenticationController {
 
   @PostMapping("/sign-up")
   public ResponseEntity<?> signUp(@RequestBody AuthenticationRequest authenticationRequest) {
-    if (userService.findUserById(authenticationRequest.getEmail()).isPresent()) {
+    if (userService.findUserById(authenticationRequest.getUserId()).isPresent()) {
       return ResponseEntity.badRequest().body("User ID already exist");
     }
 
     ApplicationUser user = ApplicationUser.builder()
-      .email(authenticationRequest.getEmail())
+      .userId(authenticationRequest.getUserId())
       .userName(authenticationRequest.getUserName())
       .password(passwordEncoder.encode(authenticationRequest.getPassword()))
       .roles(Set.of(Role.USER, Role.ADMIN))
@@ -51,10 +51,11 @@ public class AuthenticationController {
 
   @PostMapping("/sign-in")
   public ResponseEntity<String> signIn(@RequestBody AuthenticationRequest authenticationRequest) {
-    log.info("Authentication request: {}", authenticationRequest);
+
     Authentication userAuthentication = authenticationManager.authenticate(
+      // 인증시도를 위해 임시토큰 생성 후 전달
       new JwtAuthenticationToken(
-        authenticationRequest.getEmail(),
+        authenticationRequest.getUserId(),
         authenticationRequest.getPassword()
       )
     );
