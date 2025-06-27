@@ -14,4 +14,6 @@ public interface UserMapper {
 
   void createUserRoles(ApplicationUser user);
 
+  void updateLastLoginDate(ApplicationUser user);
+
 }

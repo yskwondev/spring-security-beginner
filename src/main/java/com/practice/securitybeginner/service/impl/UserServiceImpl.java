@@ -28,4 +28,9 @@ public class UserServiceImpl implements UserService {
   public void createUserRoles(ApplicationUser user) {
     userMapper.createUserRoles(user);
   }
+
+  @Override
+  public void updateLastLoginDate(ApplicationUser user) {
+    userMapper.updateLastLoginDate(user);
+  }
 }

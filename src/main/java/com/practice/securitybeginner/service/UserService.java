@@ -14,4 +14,6 @@ public interface UserService {
 
   void createUserRoles(ApplicationUser user);
 
+  void updateLastLoginDate(ApplicationUser user);
+
 }

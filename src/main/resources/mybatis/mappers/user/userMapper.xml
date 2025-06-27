@@ -51,11 +51,17 @@
       INSERT INTO TB_USER_ROLE
       <foreach collection="roles" item="role" separator=" UNION ALL ">
           SELECT
-              CAST(#{email} AS VARCHAR) as USER_ID,
+              CAST(#{userId} AS VARCHAR) as USER_ID,
               (SELECT ROLE_ID FROM TB_ROLE WHERE ROLE_NAME = CAST(#{role} AS VARCHAR))
           FROM DUAL
       </foreach>
   </insert>
+
+  <update id="updateLastLoginDate" parameterType="applicationUser">
+    UPDATE TB_USER
+    SET LAST_LOGIN_DT = NOW()
+    WHERE USER_ID = #{userId}
+  </update>
 
 
 </mapper>

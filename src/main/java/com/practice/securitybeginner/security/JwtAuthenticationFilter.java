@@ -1,16 +1,17 @@
 package com.practice.securitybeginner.security;
 
+import com.practice.securitybeginner.enums.ErrorCode;
+import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,12 +21,12 @@ import java.io.IOException;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenUtil jwtTokenUtil;
-  private final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
   @Override
   protected void doFilterInternal(
@@ -34,24 +35,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
 
-    final String token = resolveToken(request);
-
-    if (StringUtils.hasText(token) && jwtTokenUtil.validateToken(token)) {
-
-      try {
-        Authentication authentication = jwtTokenUtil.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-      } catch (AuthenticationException e) {
-        logger.error("AUTH PROCESS FAIL");
-        SecurityContextHolder.clearContext();
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+    try {
+      final String token = extractAccessToken(request);
+      if (StringUtils.hasText(token) && jwtTokenUtil.validateToken(token)) {
+          Authentication authentication = jwtTokenUtil.getAuthentication(token);
+          SecurityContextHolder.getContext().setAuthentication(authentication);
       }
+    } catch (Exception ex) {
+      SecurityContextHolder.clearContext();
+      request.setAttribute("exception", ex); // filter 예외처리를 위해 예외 객체 넘김
+    } finally {
+      filterChain.doFilter(request, response);
     }
 
-    filterChain.doFilter(request, response);
   }
 
-  private String resolveToken(HttpServletRequest request) {
+  private String extractAccessToken(HttpServletRequest request) {
     String bearerToken = request.getHeader(AUTHORIZATION);
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
         return bearerToken.substring(7);

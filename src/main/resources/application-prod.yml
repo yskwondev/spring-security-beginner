@@ -1,0 +1,19 @@
+server:
+  port: 8282
+
+spring:
+  datasource:
+    url: jdbc:log4jdbc:h2:tcp://localhost/~/spring-security
+    username: admin
+    password: admin
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+
+token:
+  access-token-expired-time: 10m
+  refresh-token-cookie-secure: true
+  refresh-token-cookie-key: sbo-refresh
+  refresh-token-expired-time: 60m
+
+logging:
+  level:
+    com.practice.securitybeginner: INFO

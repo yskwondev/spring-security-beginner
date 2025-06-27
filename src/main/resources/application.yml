@@ -1,9 +1,11 @@
 spring:
-  datasource:
-    url: jdbc:log4jdbc:h2:tcp://localhost/~/spring-security
-    username: admin
-    password: admin
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+  profiles:
+    active: local
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
 
 mybatis:
   mapper-locations: mybatis/mappers/**/*.xml
@@ -13,4 +15,4 @@ mybatis:
 
 token:
   secret-key: Jzz4p/T4MtBbFsk/d1RyilDTxmElYnPQdlP1YWNrEDo=
-  expired-time: 1h
+  re-issue-url: /api/auth/refresh

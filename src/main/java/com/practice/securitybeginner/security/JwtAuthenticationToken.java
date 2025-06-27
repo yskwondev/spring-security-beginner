@@ -1,5 +1,6 @@
 package com.practice.securitybeginner.security;
 
+import com.practice.securitybeginner.domain.ApplicationUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +13,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
   private final String principal;
   private final String credentials;
-  private final Map<String, Object> details;
+  private final ApplicationUser details;
 
   // 인증 전 임시토큰 생성
   public JwtAuthenticationToken(String principal, String credentials) {
@@ -24,7 +25,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
   }
 
   // 전체 인증완료 토큰 생성
-  public JwtAuthenticationToken(String pricipal, Map<String, Object> details, Collection<? extends GrantedAuthority> authorities) {
+  public JwtAuthenticationToken(String pricipal, ApplicationUser details, Collection<? extends GrantedAuthority> authorities) {
     super(authorities);
     this.principal = pricipal;
     this.credentials = null;
@@ -43,7 +44,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
   }
 
   @Override
-  public Map<String, Object> getDetails() {
+  public ApplicationUser getDetails() {
     return details;
   }
 }
