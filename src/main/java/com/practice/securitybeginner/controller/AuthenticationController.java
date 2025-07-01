@@ -5,11 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.securitybeginner.domain.ApplicationUser;
 import com.practice.securitybeginner.dto.AuthenticationRequest;
 import com.practice.securitybeginner.dto.AuthenticationResponse;
-import com.practice.securitybeginner.enums.ErrorCode;
 import com.practice.securitybeginner.enums.Role;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
-import com.practice.securitybeginner.interceptor.exception.NotFoundException;
-import com.practice.securitybeginner.properties.JwtTokenProperties;
 import com.practice.securitybeginner.security.JwtAuthenticationToken;
 import com.practice.securitybeginner.security.JwtTokenUtil;
 import com.practice.securitybeginner.service.UserService;
@@ -18,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static com.practice.securitybeginner.enums.ErrorCode.*;
+import static com.practice.securitybeginner.enums.ErrorCode.DUPLICATE_EMAIL;
+import static com.practice.securitybeginner.enums.ErrorCode.EXPIRED_REFRESH_TOKEN;
 
 @Slf4j
 @RestController
@@ -37,7 +34,6 @@ public class AuthenticationController {
   private final AuthenticationManager authenticationManager;
   private final UserService userService;
   private final JwtTokenUtil jwtTokenUtil;
-  private final JwtTokenProperties properties;
   private final PasswordEncoder passwordEncoder;
   private final ObjectMapper objectMapper;
 

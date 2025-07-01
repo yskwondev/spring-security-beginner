@@ -17,8 +17,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 
+import static com.practice.securitybeginner.enums.ErrorCode.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -37,10 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     try {
       final String token = extractAccessToken(request);
-      if (StringUtils.hasText(token) && jwtTokenUtil.validateToken(token)) {
-          Authentication authentication = jwtTokenUtil.getAuthentication(token);
-          SecurityContextHolder.getContext().setAuthentication(authentication);
-      }
+      if (!StringUtils.hasText(token)) throw new AuthenticateException(MISSING_ACCESS_TOKEN);
+      if (!jwtTokenUtil.validateToken(token)) throw  new AuthenticateException(EXPIRED_ACCESS_TOKEN);
+      Authentication authentication = jwtTokenUtil.getAuthentication(token);
+      SecurityContextHolder.getContext().setAuthentication(authentication);
     } catch (Exception ex) {
       SecurityContextHolder.clearContext();
       request.setAttribute("exception", ex); // filter 예외처리를 위해 예외 객체 넘김

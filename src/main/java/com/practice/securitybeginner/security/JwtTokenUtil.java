@@ -72,17 +72,7 @@ public class JwtTokenUtil {
         .maxAge(properties.getRefreshTokenExpiredTime().toSeconds())  // 쿠키 유효기간
         .path(properties.getReIssueUrl())  // refresh token 쿠키가 포함될 경로
         .build();
-    
-    String cookieString = refreshTokenCookie.toString();
-    log.info("=== Cookie Debug Info ===");
-    log.info("Cookie Name: {}", properties.getRefreshTokenCookieKey());
-    log.info("Cookie Path: {}", properties.getReIssueUrl());
-    log.info("Cookie MaxAge: {} seconds", properties.getRefreshTokenExpiredTime().toSeconds());
-    log.info("Cookie Secure: {}", properties.getRefreshTokenCookieSecure());
-    log.info("Full Cookie String: {}", cookieString);
-    log.info("========================");
-    
-    return cookieString;
+    return refreshTokenCookie.toString();
   }
 
   // 인증완료 후 API 호출시, 토큰을 통한 인증객체 생성
