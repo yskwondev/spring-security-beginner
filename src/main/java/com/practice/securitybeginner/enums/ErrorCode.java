@@ -11,10 +11,11 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
   // common exception
-  SERVER_ERROR(INTERNAL_SERVER_ERROR, "COMM-000", "unexpected error"),
+  SERVER_ERROR(INTERNAL_SERVER_ERROR, "COMM-000", "unexpected exception"),
   RESOURCE_NOT_FOUND(NOT_FOUND, "COMM-001", "not found server resources"),
   NOT_READABLE_ARGUMENT(BAD_REQUEST, "COMM-002", "invalid api arguments"),
   ILLEGAL_ARGUMENT(BAD_REQUEST, "COMM-003", "illegal arguments"),
+  DB_CONNECTION_FAILED(INTERNAL_SERVER_ERROR, "COMM-004", "failed db connection"),
 
   // user exception
   USER_NOT_FOUND(UNAUTHORIZED, "COMM-010", "not found user"),

@@ -2,6 +2,7 @@ package com.practice.securitybeginner.interceptor;
 
 import com.practice.securitybeginner.dto.CommonResponse;
 import com.practice.securitybeginner.dto.ErrorResponse;
+import com.practice.securitybeginner.enums.ErrorCode;
 import com.practice.securitybeginner.interceptor.exception.AbstractBusinessException;
 import com.practice.securitybeginner.interceptor.exception.AbstractCommonException;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
@@ -14,15 +15,13 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.time.LocalDateTime;
 
 import static com.practice.securitybeginner.enums.ErrorCode.*;
 
@@ -30,8 +29,6 @@ import static com.practice.securitybeginner.enums.ErrorCode.*;
 @Slf4j
 @RestControllerAdvice
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
-
-  // todo application 전체 에러처리를 위해 에러마다의 http header status를 정의해주어야 하는데,, 이게 맞나??
 
   @Override
   public boolean supports(@NonNull MethodParameter returnType, @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
@@ -62,41 +59,41 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     return generateErrorResponse(ex, request);
   }
 
+  // Spring MVC에서 정의된 Exception은 Custom Handler를 구현한다.
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<ErrorResponse> handleNoResourceException(NoResourceFoundException ex, HttpServletRequest request) {
-    ErrorResponse response = new ErrorResponse(LocalDateTime.now(), request.getMethod(), request.getRequestURI(), RESOURCE_NOT_FOUND.getHttpStatus().value(), RESOURCE_NOT_FOUND.getCode(), RESOURCE_NOT_FOUND.getMessage());
-    return ResponseEntity.status(RESOURCE_NOT_FOUND.getHttpStatus()).body(response);
+    return generateErrorResponse(ex, RESOURCE_NOT_FOUND, request);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
-  public  ResponseEntity<ErrorResponse> handleNotReadableMessageException(HttpMessageNotReadableException ex, HttpServletRequest request) {
-    ErrorResponse response = new ErrorResponse(LocalDateTime.now(), request.getMethod(), request.getRequestURI(), NOT_READABLE_ARGUMENT.getHttpStatus().value(), NOT_READABLE_ARGUMENT.getCode(), NOT_READABLE_ARGUMENT.getMessage());
-    return ResponseEntity.status(NOT_READABLE_ARGUMENT.getHttpStatus()).body(response);
+  public ResponseEntity<ErrorResponse> handleNotReadableMessageException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+    return generateErrorResponse(ex, NOT_READABLE_ARGUMENT, request);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public  ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
-    ErrorResponse response = new ErrorResponse(LocalDateTime.now(), request.getMethod(), request.getRequestURI(), ILLEGAL_ARGUMENT.getHttpStatus().value(), ILLEGAL_ARGUMENT.getCode(), ILLEGAL_ARGUMENT.getMessage());
-    return ResponseEntity.status(ILLEGAL_ARGUMENT.getHttpStatus()).body(response);
+  public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+    return generateErrorResponse(ex, ILLEGAL_ARGUMENT, request);
   }
 
-  // Spring MVC에서 정의된 Exception은 Custom Handler를 구현한다.
   @ExceptionHandler(MissingRequestCookieException.class)
-  public  ResponseEntity<ErrorResponse> handleMissingCookieException(MissingRequestCookieException ex, HttpServletRequest request) {
+  public ResponseEntity<ErrorResponse> handleMissingCookieException(MissingRequestCookieException ex, HttpServletRequest request) {
     AuthenticateException authException = new AuthenticateException(MISSING_REFRESH_TOKEN);
     return generateErrorResponse(authException, request);
+  }
+
+  @ExceptionHandler(CannotGetJdbcConnectionException.class)
+  public ResponseEntity<ErrorResponse> handleMissingJdbcConnectionException(CannotGetJdbcConnectionException ex, HttpServletRequest request) {
+    return generateErrorResponse(ex, DB_CONNECTION_FAILED, request);
   }
 
   // 그 외 정의되지 않은 모든 Exception들을 받아주는 handler
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
-    log.error("[ UNEXPECTED EXCEPTION OCCURED ]", ex);
-    ErrorResponse response = new ErrorResponse(LocalDateTime.now(), request.getMethod(), request.getRequestURI(), SERVER_ERROR.getHttpStatus().value(), SERVER_ERROR.getCode(), SERVER_ERROR.getMessage());
-    return ResponseEntity.status(SERVER_ERROR.getHttpStatus()).body(response);
+    return generateErrorResponse(ex, SERVER_ERROR, request);
   }
 
   private ResponseEntity<ErrorResponse> generateErrorResponse(AbstractCommonException ex, HttpServletRequest request) {
-    log.error("[ ERROR EXCEPTION OCCURED ]", ex);
+    log.error("[ BUSINESS EXCEPTION OCCURED ]", ex);
     ErrorResponse response = ErrorResponse.error(
       ex.getErrorCode(),
       request.getMethod(),
@@ -104,5 +101,12 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     );
     return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
   }
+
+  private ResponseEntity<ErrorResponse> generateErrorResponse(Exception ex, ErrorCode errorCode, HttpServletRequest request) {
+    log.error("[ SERVER EXCEPTION OCCURED ]", ex);
+    ErrorResponse response = ErrorResponse.error(errorCode, request.getMethod(), request.getRequestURI());
+    return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+  }
+
 
 }

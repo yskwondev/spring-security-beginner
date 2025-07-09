@@ -32,10 +32,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     // 실제 예외 가져오기 (Filter에서 발생한 원본 예외)
     Throwable cause = (Throwable) request.getAttribute("exception");
     if (cause != null) {
-      log.warn("Authentication failed with filter exception : {} - {}",
+      log.error("Authentication failed with filter exception : {} - {}",
                cause.getClass().getSimpleName(), cause.getMessage());
     } else {
-      log.warn("Authentication failed with Security exception : {} - {}",
+      log.error("Authentication failed with Security exception : {} - {}",
                authException.getClass().getSimpleName(), authException.getMessage());
     }
     ErrorCode errorCode = defineErrorCode(cause, authException);
