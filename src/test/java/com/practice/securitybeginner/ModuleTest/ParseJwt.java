@@ -20,11 +20,6 @@ public class ParseJwt {
 
   @Test
   public void testParseJwt() {
-    ObjectMapper mapper = new ObjectMapper();
-    String jwt = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBuYXZlci5jb20iLCJsYXN0TG9naW5EYXRlVGltZSI6WzIwMjUsMiw3LDksMTksOSwxNzcwMDAwMDBdLCJyb2xlcyI6WyJBRE1JTiIsIlVTRVIiXSwidXNlck5hbWUiOiLthYzsiqTtirgiLCJ1c2VySWQiOiJhZG1pbkBuYXZlci5jb20iLCJjcmVhdGVEYXRlIjpbMjAyNSwyLDddLCJpYXQiOjE3Mzg5MDk0NjYsImV4cCI6MTczODkxMzA2Nn0.nWGtEkuyaY-CsivCmICza9Xt42_qSQJc_3TN1ZhD9zdcdor33Z4mag63nATvThb7";
-    Claims claims = extractAllClaims(jwt);
-    Set<String> temp = mapper.convertValue(claims.get("roles"), new TypeReference<>() {});
-    System.out.println(temp);
   }
 
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

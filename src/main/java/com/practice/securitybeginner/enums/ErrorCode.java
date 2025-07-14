@@ -15,13 +15,16 @@ public enum ErrorCode {
   RESOURCE_NOT_FOUND(NOT_FOUND, "COMM-001", "not found server resources"),
   NOT_READABLE_ARGUMENT(BAD_REQUEST, "COMM-002", "invalid api arguments"),
   ILLEGAL_ARGUMENT(BAD_REQUEST, "COMM-003", "illegal arguments"),
-  DB_CONNECTION_FAILED(INTERNAL_SERVER_ERROR, "COMM-004", "failed db connection"),
 
   // user exception
   USER_NOT_FOUND(UNAUTHORIZED, "COMM-010", "not found user"),
   DISABLED_USER(UNAUTHORIZED, "COMM-011", "account is disabled"),
   LOCKED_USER(UNAUTHORIZED, "COMM-012", "account is locked"),
   DUPLICATE_EMAIL(BAD_REQUEST, "COMM-013", "email already exists"),
+
+  // db exception
+  DB_ERROR(INTERNAL_SERVER_ERROR, "DB-000", "database exception"),
+  DB_CONNECTION_FAILED(INTERNAL_SERVER_ERROR, "DB-001", "failed db connection"),
 
   // auth exception
   AUTH_ERROR(UNAUTHORIZED, "AUTH-000", "authentication failed"),

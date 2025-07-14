@@ -1,6 +1,7 @@
 package com.practice.securitybeginner.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.practice.securitybeginner.dto.CommonResponse;
 import com.practice.securitybeginner.dto.ErrorResponse;
 import com.practice.securitybeginner.enums.ErrorCode;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
@@ -39,15 +40,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                authException.getClass().getSimpleName(), authException.getMessage());
     }
     ErrorCode errorCode = defineErrorCode(cause, authException);
-    ErrorResponse errorResponse = ErrorResponse.error(
-      errorCode,
-      request.getMethod(),
-      request.getRequestURI()
-    );
 
+    CommonResponse<ErrorResponse> errorResponse = CommonResponse.fail(errorCode, request);
     response.setStatus(errorCode.getHttpStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
+
     // response body에 직접 쓰기
     objectMapper.writeValue(response.getWriter(), errorResponse);
 

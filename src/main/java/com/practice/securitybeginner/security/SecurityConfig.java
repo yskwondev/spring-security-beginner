@@ -1,14 +1,18 @@
 package com.practice.securitybeginner.security;
 
+import com.practice.securitybeginner.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,12 +30,20 @@ public class SecurityConfig {
 
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final UserDetailsService userDetailsService;
+  private final UserService userService;
+  private final PasswordEncoder passwordEncoder;
 
   private final String[] ACCESSIBLE_URL = {
     "/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*",
-    "/hello",
+    "/api/test/**",
     "/api/auth/**"
   };
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+      return config.getAuthenticationManager();
+  }
 
   @Bean
   public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
@@ -59,11 +71,6 @@ public class SecurityConfig {
 
     return http.build();
 
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-      return config.getAuthenticationManager();
   }
 
   @Bean

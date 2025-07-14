@@ -1,8 +1,5 @@
 package com.practice.securitybeginner.security;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.practice.securitybeginner.domain.ApplicationUser;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
 import com.practice.securitybeginner.security.domain.CustomUserDetails;
 import com.practice.securitybeginner.service.UserService;
@@ -13,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 import static com.practice.securitybeginner.enums.ErrorCode.*;
 
