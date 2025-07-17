@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -50,9 +51,13 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     @NonNull ServerHttpRequest request,
     @NonNull ServerHttpResponse response
   ) {
-    // ApiResponse로 이미 래핑된 경우 그대로 반환
-    if (body instanceof CommonResponse || body instanceof ErrorResponse) {
-        return body;
+
+    if (body instanceof CommonResponse<?> commonResponse) {
+      // response의 body에 error 객체가 들어있다면, Exception 발생. 이에 따라 응답헤더에 Exception에 맞는 Status 삽입
+      if (commonResponse.getData() instanceof ErrorResponse) {
+        response.setStatusCode(HttpStatusCode.valueOf(commonResponse.getStatus()));
+      }
+      return body;
     }
 
     // todo :: 파일 등 리소스에 대한 리턴 래핑 확인 필요함
