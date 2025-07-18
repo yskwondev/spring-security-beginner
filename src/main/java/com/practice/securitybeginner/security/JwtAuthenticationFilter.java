@@ -1,15 +1,13 @@
 package com.practice.securitybeginner.security;
 
-import com.practice.securitybeginner.enums.ErrorCode;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
+import com.practice.securitybeginner.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 
 import static com.practice.securitybeginner.enums.ErrorCode.*;

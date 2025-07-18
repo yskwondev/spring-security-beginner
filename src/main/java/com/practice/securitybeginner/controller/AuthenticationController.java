@@ -8,7 +8,7 @@ import com.practice.securitybeginner.dto.AuthenticationResponse;
 import com.practice.securitybeginner.enums.Role;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
 import com.practice.securitybeginner.security.JwtAuthenticationToken;
-import com.practice.securitybeginner.security.JwtTokenUtil;
+import com.practice.securitybeginner.util.JwtTokenUtil;
 import com.practice.securitybeginner.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,11 +41,9 @@ public class AuthenticationController {
   public AuthenticationResponse refeshAuthToken(@CookieValue(name = "${token.refresh-token-cookie-key}") String refreshToken, HttpServletResponse response) throws AuthenticateException {
     // refresh token 유효성 검증
     if (!jwtTokenUtil.validateToken(refreshToken)) { throw new AuthenticateException(EXPIRED_REFRESH_TOKEN); }
-
     final Claims claims = jwtTokenUtil.extractAllClaims(refreshToken);
     final String userId = claims.getSubject();
     final Set<Role> userRoles = objectMapper.convertValue(claims.get("roles"), new TypeReference<>() {});
-
     // 필요시, token의 user id를 통한 DB 사용자 인증 절차 추가
 
     ApplicationUser applicationUser = ApplicationUser.builder().userId(userId).roles(userRoles).build();

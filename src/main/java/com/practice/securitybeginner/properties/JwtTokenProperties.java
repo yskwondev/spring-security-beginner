@@ -21,5 +21,3 @@ public class JwtTokenProperties {
   private final Duration refreshTokenExpiredTime;
 
 }
-
-

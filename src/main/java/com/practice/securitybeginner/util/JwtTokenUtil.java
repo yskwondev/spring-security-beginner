@@ -1,11 +1,11 @@
-package com.practice.securitybeginner.security;
+package com.practice.securitybeginner.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.securitybeginner.domain.ApplicationUser;
 import com.practice.securitybeginner.enums.Role;
 import com.practice.securitybeginner.properties.JwtTokenProperties;
-import com.practice.securitybeginner.util.ConvertUtil;
+import com.practice.securitybeginner.security.JwtAuthenticationToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

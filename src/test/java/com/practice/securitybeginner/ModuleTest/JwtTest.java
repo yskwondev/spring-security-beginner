@@ -1,22 +1,17 @@
 package com.practice.securitybeginner.ModuleTest;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Set;
 import java.util.function.Function;
 
-public class ParseJwt {
+public class JwtTest {
 
   @Test
   public void testParseJwt() {
