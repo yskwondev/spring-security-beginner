@@ -1,20 +1,24 @@
 package com.practice.securitybeginner.ModuleTest;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleTest {
 
+  @DisplayName("sample test")
   @Test
-  public void testSimple() {
-    String[] simpleArr = new String[10];
-    ArrayList<String> list = new ArrayList<String>();
+  void testMethodNameHere() {
+    // given
+    int actual = 0;
 
-    Assertions.assertEquals(simpleArr instanceof Arrays, list.size());
+    // when
+    int expected = 0;
 
+    // then
+    assertEquals(expected, actual);
   }
 
 }

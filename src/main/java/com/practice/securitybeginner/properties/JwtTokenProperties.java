@@ -15,9 +15,11 @@ public class JwtTokenProperties {
 
   private final String secretKey;
   private final String reIssueUrl;
-  private final Boolean refreshTokenCookieSecure;
-  private final String refreshTokenCookieKey;
   private final Duration accessTokenExpiredTime;
+  private final String refreshTokenCookieKey;
+  private final Boolean refreshTokenCookieSecure;
+  private final String refreshTokenSameSite;
+  private final String refreshTokenDomain;
   private final Duration refreshTokenExpiredTime;
 
 }

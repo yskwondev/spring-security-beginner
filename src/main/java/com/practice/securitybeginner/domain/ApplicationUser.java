@@ -2,24 +2,25 @@ package com.practice.securitybeginner.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.practice.securitybeginner.enums.Role;
-import lombok.*;
+import com.practice.securitybeginner.security.domain.JwtToken;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Set;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplicationUser implements Serializable {
+public class ApplicationUser {
 
-  @Serial
-  private static final long serialVersionUID = 1234567890L;
-
+  private Integer id;
   private String userId;
   private String userName;
   @JsonIgnore
@@ -31,5 +32,25 @@ public class ApplicationUser implements Serializable {
   private LocalDateTime lastLoginDateTime;
   private LocalDate createDate;
   private Set<Role> roles;
+
+  public static ApplicationUser from(JwtToken token) {
+    return ApplicationUser.builder()
+      .userId(token.getUserId())
+      .roles(token.getClaims().getRoles())
+      .build();
+  }
+
+  // 최종 로그인일시 업데이트
+  public void updateLastLoginDateTime() {
+    this.lastLoginDateTime = LocalDateTime.now();
+  }
+
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return roles
+      .stream()
+      .map(Role::getRoleAuthorities)
+      .flatMap(Collection::stream)
+      .toList();
+  }
 
 }

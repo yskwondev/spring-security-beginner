@@ -10,8 +10,10 @@ spring:
 
 token:
   access-token-expired-time: 10m
+  refresh-token-cookie-key:  template-app-refresh
   refresh-token-cookie-secure: true
-  refresh-token-cookie-key: sbo-refresh
+  refresh-token-same-site: Strict
+  refresh-token-domain: solbione.com
   refresh-token-expired-time: 60m
 
 logging:

@@ -18,9 +18,10 @@ public enum ErrorCode {
 
   // user exception
   USER_NOT_FOUND(UNAUTHORIZED, "COMM-010", "not found user"),
-  DISABLED_USER(UNAUTHORIZED, "COMM-011", "account is disabled"),
-  LOCKED_USER(UNAUTHORIZED, "COMM-012", "account is locked"),
-  DUPLICATE_EMAIL(BAD_REQUEST, "COMM-013", "email already exists"),
+  USER_INFO_MISMATCH(UNAUTHORIZED, "COMM-011", "check your id or password"),
+  DISABLED_USER(UNAUTHORIZED, "COMM-012", "account is disabled"),
+  LOCKED_USER(UNAUTHORIZED, "COMM-013", "account is locked"),
+  DUPLICATE_EMAIL(BAD_REQUEST, "COMM-014", "email already exists"),
 
   // db exception
   DB_ERROR(INTERNAL_SERVER_ERROR, "DB-000", "database exception"),
@@ -31,8 +32,8 @@ public enum ErrorCode {
   INVALID_TOKEN(UNAUTHORIZED, "AUTH-001", "invalid token"),
   EXPIRED_ACCESS_TOKEN(UNAUTHORIZED, "AUTH-002", "access token expired"),
   MISSING_ACCESS_TOKEN(UNAUTHORIZED, "AUTH-003", "missing access token"),
-  EXPIRED_REFRESH_TOKEN(UNAUTHORIZED, "AUTH-004", "refresh token expired"),
-  MISSING_REFRESH_TOKEN(UNAUTHORIZED, "AUTH-005", "missing refresh token");
+  MISSING_REFRESH_TOKEN(UNAUTHORIZED, "AUTH-004", "missing refresh token"),
+  REISSUE_NOT_ALLOWED(UNAUTHORIZED, "AUTH-005", "refresh token reissue is not allowed");
 
   private final HttpStatus httpStatus;
   private final String code;

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.core.MethodParameter;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -94,19 +95,23 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     return generateErrorResponse(authException, request);
   }
 
-  @ExceptionHandler(MyBatisSystemException.class)
-  public CommonResponse<ErrorResponse> handleMybatisException(MyBatisSystemException ex, HttpServletRequest request) {
+  @ExceptionHandler({
+    DataAccessException.class,
+    MyBatisSystemException.class
+  })
+  public CommonResponse<ErrorResponse> handleDatabaseException(Exception ex, HttpServletRequest request) {
     Throwable cause = ex.getCause().getCause(); // mybatis exception unwrapping
     // 특정할만한 에러 발생시 추가
     if (cause instanceof CannotGetJdbcConnectionException) {
       return generateErrorResponse(ex, DB_CONNECTION_FAILED, request);
     }
-    return generateErrorResponse(ex, DB_ERROR, request);
+    return generateErrorResponse(ex, DB_ERROR, request); // client단에서 db에러를 어떻게 표현해야 좋을까
   }
 
   // 그 외 정의되지 않은 모든 Exception들을 받아주는 handler
   @ExceptionHandler(Exception.class)
   public CommonResponse<ErrorResponse> handleExceptions(Exception ex, HttpServletRequest request) {
+    log.error("Exception type : {}", ex.getClass().getName());
     return generateErrorResponse(ex, SERVER_ERROR, request);
   }
 

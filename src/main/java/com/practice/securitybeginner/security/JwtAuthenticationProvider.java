@@ -34,17 +34,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
 
-    if (!passwordEncoder.matches(password, userDetails.getPassword())) { throw new AuthenticateException(USER_NOT_FOUND); }
+    if (!passwordEncoder.matches(password, userDetails.getPassword())) { throw new AuthenticateException(USER_INFO_MISMATCH); }
     if (!userDetails.isEnabled()) { throw new AuthenticateException(DISABLED_USER); }
     if (!userDetails.isAccountNonLocked()) { throw new AuthenticateException(LOCKED_USER); }
 
+    userDetails.getUser().updateLastLoginDateTime();
     userService.updateLastLoginDate(userDetails.getUser());
 
-    return new JwtAuthenticationToken(
-      username,
-      userDetails.getUser(),
-      userDetails.getAuthorities()
-    );
+    return JwtAuthenticationToken.authenticated(userDetails.getUser(), userDetails.getAuthorities());
 
   }
 

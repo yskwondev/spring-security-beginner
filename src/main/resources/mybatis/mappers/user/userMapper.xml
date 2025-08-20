@@ -5,6 +5,7 @@
 <mapper namespace="com.practice.securitybeginner.mapper.UserMapper">
 
   <resultMap id="targetUserMap" type="applicationUser">
+    <result column="id" property="id"/>
     <result column="user_id" property="userId"/>
     <result column="password" property="password"/>
     <result column="user_name" property="userName"/>
@@ -18,7 +19,8 @@
   </resultMap>
 
   <select id="findUserById" parameterType="String" resultMap="targetUserMap">
-    SELECT U.user_id,
+    SELECT U.id,
+           U.user_id,
            U.password,
            U.user_name,
            R.role_name,
@@ -26,16 +28,16 @@
            U.is_enabled,
            U.last_login_dt,
            U.create_dt
-    FROM TB_USER AS U
-    JOIN TB_USER_ROLE AS UR
-    ON U.user_id = UR.user_id
-    JOIN TB_ROLE AS R
+    FROM user_t AS U
+    JOIN user_role_t AS UR
+    ON U.id = UR.user_id
+    JOIN role_t AS R
     ON UR.role_id = R.role_id
     WHERE U.user_id = #{userId}
   </select>
 
   <insert id="createUser" parameterType="applicationUser">
-    INSERT INTO TB_USER
+    INSERT INTO user_t
     VALUES (
       #{userId},
       #{password},
@@ -48,19 +50,19 @@
   </insert>
 
   <insert id="createUserRoles" parameterType="applicationUser">
-      INSERT INTO TB_USER_ROLE
+      INSERT INTO user_role_t
       <foreach collection="roles" item="role" separator=" UNION ALL ">
           SELECT
               CAST(#{userId} AS VARCHAR) as USER_ID,
-              (SELECT ROLE_ID FROM TB_ROLE WHERE ROLE_NAME = CAST(#{role} AS VARCHAR))
+              (SELECT ROLE_ID FROM role_t WHERE ROLE_NAME = CAST(#{role} AS VARCHAR))
           FROM DUAL
       </foreach>
   </insert>
 
   <update id="updateLastLoginDate" parameterType="applicationUser">
-    UPDATE TB_USER
-    SET LAST_LOGIN_DT = NOW()
-    WHERE USER_ID = #{userId}
+    UPDATE user_t
+    SET LAST_LOGIN_DT = #{lastLoginDateTime}
+    WHERE id = #{id}
   </update>
 
 

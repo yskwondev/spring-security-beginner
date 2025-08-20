@@ -11,26 +11,26 @@ import java.util.Map;
 // JWT인증 security 토큰 객체
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-  private final String principal;
-  private final String credentials;
+  private final String principal; // 사용자 ID
+  private String credentials; // 비밀번호
   private final ApplicationUser details;
 
-  // 인증 전 임시토큰 생성
-  public JwtAuthenticationToken(String principal, String credentials) {
-    super(null);
+  private JwtAuthenticationToken(String principal, String credentials, ApplicationUser details, Collection<? extends GrantedAuthority> authorities) {
+    super(authorities);
     this.principal = principal;
-    this.credentials = credentials; // 비밀번호 (인증 전)
-    this.details = null;
-    setAuthenticated(false);
+    this.credentials = credentials;
+    this.details = details;
+    setAuthenticated(authorities != null && !authorities.isEmpty());
   }
 
-  // 전체 인증완료 토큰 생성
-  public JwtAuthenticationToken(String pricipal, ApplicationUser details, Collection<? extends GrantedAuthority> authorities) {
-    super(authorities);
-    this.principal = pricipal;
-    this.credentials = null;
-    this.details = details;
-    setAuthenticated(true);
+  // 인증 전 임시토큰 생성
+  public static JwtAuthenticationToken unauthenticated(String userId, String password) {
+    return new JwtAuthenticationToken(userId, password, null, null);
+  }
+
+  // 인증 완료 토큰 생성
+  public static JwtAuthenticationToken authenticated(ApplicationUser user, Collection<? extends GrantedAuthority> authorities) {
+    return new JwtAuthenticationToken(user.getUserId(), null, user, authorities);
   }
 
   @Override

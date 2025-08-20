@@ -1,6 +1,8 @@
 package com.practice.securitybeginner.security;
 
+import com.practice.securitybeginner.domain.ApplicationUser;
 import com.practice.securitybeginner.interceptor.exception.AuthenticateException;
+import com.practice.securitybeginner.security.service.JwtTokenService;
 import com.practice.securitybeginner.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +27,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtTokenUtil jwtTokenUtil;
+  private final JwtTokenService jwtTokenService;
 
   @Override
   protected void doFilterInternal(
@@ -34,11 +36,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
 
+//    if ("/api/auth/refresh".equals(request.getRequestURI())) {
+//        filterChain.doFilter(request, response);
+//        return;
+//    }
+
     try {
       final String token = extractAccessToken(request);
       if (!StringUtils.hasText(token)) throw new AuthenticateException(MISSING_ACCESS_TOKEN);
-      if (!jwtTokenUtil.validateToken(token)) throw  new AuthenticateException(EXPIRED_ACCESS_TOKEN);
-      Authentication authentication = jwtTokenUtil.getAuthentication(token);
+      if (!jwtTokenService.validateToken(token)) throw new AuthenticateException(EXPIRED_ACCESS_TOKEN);
+      ApplicationUser currentUser = jwtTokenService.getUserFromToken(token);
+      Authentication authentication = JwtAuthenticationToken.authenticated(currentUser, currentUser.getAuthorities());
       SecurityContextHolder.getContext().setAuthentication(authentication);
     } catch (Exception ex) {
       SecurityContextHolder.clearContext();

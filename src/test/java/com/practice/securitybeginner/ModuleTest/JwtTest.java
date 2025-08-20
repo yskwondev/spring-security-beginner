@@ -4,6 +4,7 @@ package com.practice.securitybeginner.ModuleTest;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
